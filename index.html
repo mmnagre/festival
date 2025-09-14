@@ -44,28 +44,55 @@
     </div>
 
     <script>
-        // Manually list your image filenames with any extension
-        const imageFileNames = [
-            "image1.png",
-            "image2.png",
-            "image3.png",
-            "image4.png"
+        // Manually list your image filenames without the extension
+        const imageBaseNames = [
+            "photo1",
+            "photo2",
+            "festival-banner"
         ];
         
+        // List of possible extensions to try
+        const possibleExtensions = [".jpg", ".jpeg", ".png"];
+
         let currentIndex = 0;
         const banner = document.getElementById('banner-image');
         const intervalTime = 60000; // 60,000 milliseconds = 1 minute
 
         // Function to change the banner image
-        function changeBannerImage() {
-            const imageUrl = `./images/${imageFileNames[currentIndex]}`;
-            banner.style.backgroundImage = `url('${imageUrl}')`;
-            currentIndex = (currentIndex + 1) % imageFileNames.length;
+        async function changeBannerImage() {
+            const baseName = imageBaseNames[currentIndex];
+            let imageFound = false;
+
+            // Loop through possible extensions
+            for (const ext of possibleExtensions) {
+                const imageUrl = `./images/${baseName}${ext}`;
+                const img = new Image();
+                
+                // Use a Promise to wait for the image to load or fail
+                await new Promise(resolve => {
+                    img.onload = () => {
+                        banner.style.backgroundImage = `url('${imageUrl}')`;
+                        imageFound = true;
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn(`Could not find image: ${imageUrl}`);
+                        resolve();
+                    };
+                    img.src = imageUrl;
+                });
+
+                if (imageFound) {
+                    break; // Stop trying extensions if the image is found
+                }
+            }
+
+            currentIndex = (currentIndex + 1) % imageBaseNames.length;
         }
 
         // Initialize the slideshow on page load
         document.addEventListener('DOMContentLoaded', () => {
-            if (imageFileNames.length > 0) {
+            if (imageBaseNames.length > 0) {
                 changeBannerImage();
                 setInterval(changeBannerImage, intervalTime);
             }
@@ -73,5 +100,3 @@
     </script>
 </body>
 </html>
-
-

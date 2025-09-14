@@ -1,0 +1,90 @@
+<?php
+// PHP Script to read image files from the 'images' directory
+function get_image_files($dir) {
+    $files = scandir($dir);
+    $images = [];
+    foreach ($files as $file) {
+        // Exclude system files and check for common image extensions
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'bmp'])) {
+            $images[] = $file;
+        }
+    }
+    return $images;
+}
+
+// Get the list of images
+$image_files = get_image_files('images');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youth Festival 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .banner {
+            width: 100%;
+            height: 50vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-radius: 0.5rem;
+            transition: background-image 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="relative bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+        <div id="banner-image" class="banner">
+            <!-- Overlay to make text readable -->
+            <div class="absolute inset-0 bg-black opacity-30"></div>
+            
+            <div class="text-center relative z-10 p-4">
+                <h1 class="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">Youth Festival 2025</h1>
+                <p class="text-white text-lg sm:text-xl mt-2 font-light">A Celebration of a New Generation</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamically create the JavaScript array from the PHP variable
+        const imageFileNames = <?php echo json_encode($image_files); ?>;
+
+        let currentIndex = 0;
+        const banner = document.getElementById('banner-image');
+        const intervalTime = 60000; // 60,000 milliseconds = 1 minute
+
+        function changeBannerImage() {
+            // The URL path assumes images are in an 'images' folder
+            const imageUrl = `./images/${imageFileNames[currentIndex]}`;
+            banner.style.backgroundImage = `url('${imageUrl}')`;
+            currentIndex = (currentIndex + 1) % imageFileNames.length;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (imageFileNames.length > 0) {
+                changeBannerImage();
+                setInterval(changeBannerImage, intervalTime);
+            }
+        });
+    </script>
+</body>
+</html>

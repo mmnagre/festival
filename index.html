@@ -32,7 +32,7 @@
 <body class="bg-gray-100 p-8 flex flex-col items-center min-h-screen">
 
     <div class="relative bg-gray-900 rounded-xl overflow-hidden shadow-2xl w-full">
-        <div id="banner-image" class="banner">
+        <div id="media-container" class="banner">
             <!-- Overlay to make text readable -->
             <div class="absolute inset-0 bg-black opacity-30"></div>
             
@@ -40,64 +40,80 @@
                 <marquee direction="left">
                     <h1 class="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight whitespace-nowrap">Welcome to Youth Festival 2025 A celebration of a New Generation-MSS' ASC College Ambad</h1>
                 </marquee>
-                
+                <p class="text-white text-lg sm:text-xl mt-2 font-light">A Celebration of a New Generation</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Manually list your image filenames without the extension
-        const imageBaseNames = [
+        // Manually list your file names without the extension
+        const fileBaseNames = [
             "image1",
             "image2",
-            "image3",
-            "image4"
+            "video1",
+            "video2"
         ];
         
         // List of possible extensions to try
-        const possibleExtensions = [".jpg", ".jpeg", ".png"];
+        const possibleImageExtensions = [".jpg", ".jpeg", ".png"];
+        const possibleVideoExtensions = [".mp4", ".webm"];
 
         let currentIndex = 0;
-        const banner = document.getElementById('banner-image');
+        const mediaContainer = document.getElementById('media-container');
         const intervalTime = 60000; // 60,000 milliseconds = 1 minute
 
-        // Function to change the banner image
-        async function changeBannerImage() {
-            const baseName = imageBaseNames[currentIndex];
-            let imageFound = false;
+        async function changeMedia() {
+            const baseName = fileBaseNames[currentIndex];
+            let mediaFound = false;
+            let isVideo = false;
+            let mediaUrl = '';
+            
+            const allExtensions = [...possibleImageExtensions, ...possibleVideoExtensions];
 
-            // Loop through possible extensions
-            for (const ext of possibleExtensions) {
-                const imageUrl = `./images/${baseName}${ext}`;
-                const img = new Image();
-                
-                // Use a Promise to wait for the image to load or fail
-                await new Promise(resolve => {
-                    img.onload = () => {
-                        banner.style.backgroundImage = `url('${imageUrl}')`;
-                        imageFound = true;
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        console.warn(`Could not find image: ${imageUrl}`);
-                        resolve();
-                    };
-                    img.src = imageUrl;
-                });
-
-                if (imageFound) {
-                    break; // Stop trying extensions if the image is found
+            for (const ext of allExtensions) {
+                const url = `./images/${baseName}${ext}`;
+                const response = await fetch(url, { method: 'HEAD' });
+                if (response.ok) {
+                    mediaUrl = url;
+                    isVideo = possibleVideoExtensions.includes(ext);
+                    mediaFound = true;
+                    break;
                 }
             }
 
-            currentIndex = (currentIndex + 1) % imageBaseNames.length;
+            if (mediaFound) {
+                // Remove previous media element
+                mediaContainer.innerHTML = `<div class="absolute inset-0 bg-black opacity-30"></div>`;
+                
+                if (isVideo) {
+                    const videoElement = document.createElement('video');
+                    videoElement.src = mediaUrl;
+                    videoElement.className = "absolute top-0 left-0 w-full h-full object-cover";
+                    videoElement.autoplay = true;
+                    videoElement.loop = true;
+                    videoElement.muted = true;
+                    videoElement.controls = false;
+                    mediaContainer.insertBefore(videoElement, mediaContainer.firstChild);
+
+                    // Wait for the video to end before proceeding
+                    videoElement.onended = () => {
+                        currentIndex = (currentIndex + 1) % fileBaseNames.length;
+                        changeMedia();
+                    };
+                } else {
+                    mediaContainer.style.backgroundImage = `url('${mediaUrl}')`;
+                    currentIndex = (currentIndex + 1) % fileBaseNames.length;
+                    setTimeout(changeMedia, intervalTime);
+                }
+            } else {
+                console.error(`Media not found for ${baseName}`);
+            }
         }
 
         // Initialize the slideshow on page load
         document.addEventListener('DOMContentLoaded', () => {
-            if (imageBaseNames.length > 0) {
-                changeBannerImage();
-                setInterval(changeBannerImage, intervalTime);
+            if (fileBaseNames.length > 0) {
+                changeMedia();
             }
         });
     </script>

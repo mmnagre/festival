@@ -27,6 +27,29 @@
             border-radius: 0.5rem;
             transition: background-image 1s ease-in-out;
         }
+
+        /* CSS for the new scrolling text animation */
+        .scrolling-text-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .scrolling-text {
+            display: inline-block;
+            animation: scroll-left 40s linear infinite; /* Adjust duration to control speed */
+        }
+
+        /* The animation itself */
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-8 flex flex-col items-center min-h-screen">
@@ -37,10 +60,9 @@
             <div class="absolute inset-0 bg-black opacity-30"></div>
             
             <div class="text-center relative z-10 p-8 pb-16">
-                <marquee direction="left">
-                    <h1 class="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight whitespace-nowrap">Welcome to Youth Festival 2025 A celebration of a New Generation-MSS' ASC College Ambad</h1>
-                </marquee>
-                <p class="text-white text-lg sm:text-xl mt-2 font-light">A Celebration of a New Generation</p>
+                <div class="scrolling-text-container">
+                    <h1 class="scrolling-text text-white text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">Welcome to Youth Festival 2025 A celebration of a New Generation-MSS' ASC College Ambad</h1>
+                </div>
             </div>
         </div>
     </div>
